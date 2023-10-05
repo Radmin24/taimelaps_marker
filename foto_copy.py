@@ -4,19 +4,49 @@ import shutil
 import cv2
 
 # Указываем путь к директории, в которой будем искать фотографии
-source_dir = "/Users/radmilginiatullin/Desktop/timelaps/exit"
+source_dir = input('Введите исходную директорию или нажмите Enter: ')
+if source_dir == '':
+    source_dir = "/Users/radmilginiatullin/Desktop/source_dir"
+    print(f"Выбрано дефолтное значение /Users/radmilginiatullin/Desktop/source_dir")
+
 
 # Указываем путь к директории, в которую будем переносить фотографии
-destination_dir = "/Users/radmilginiatullin/Desktop/timelaps/new/"
+destination_dir = input('Введите конечную директорию или нажмите Enter: ')
+if destination_dir == '':
+    destination_dir = "/Users/radmilginiatullin/Desktop/destination_dir"
+    print(f'Выбрано дефолтное значение /Users/radmilginiatullin/Desktop/destination_dir')
 
 # Счетчик для переименования файлов
 counter = 1
 
+#Счетчик количества файлов
+total_files = 0
+
+#Считаем сколько файлов 
+for root, dirs, files in os.walk(source_dir):
+    total_files += len(files)
+
+print("Количество файлов:", total_files)
+
+
 # Указываем размеры видео и частоту кадров
+length = input('Введите время готового ролика или нажмите Enter (1min): ')
+if length == '':
+    length = 60
+    print(f'Выбрано дефолтное значение 1 минута.')
 
 fps = 24
-width = 1920    
+print(f'Штатное количетсно кадров в минуту {fps} FPS')
+
+width = 1920
+   
 height = 1080
+print(f'Штатное разрешение {width}x{height}') 
+
+#Узнаем какой кадор нам брать в зависимости от длинны ролика
+cadr = round(((length * 60) * fps)/total_files)
+
+print(f'Будем использовать каждый {cadr}')
 
 # Создаем объект VideoWriter для записи видео
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -65,7 +95,7 @@ for day_dir in sorted(os.listdir(source_dir)):
         # Перебираем все файлы внутри текущей подпапки
         for file_name in sorted(os.listdir(hour_path)):
             file_path = os.path.join(hour_path, file_name)
-            if counter % 9 == 0 :
+            if counter % cadr == 0 :
                 img = cv2.imread(os.path.join(hour_path, file_name))
                 video.write(img)
             # Проверяем, является ли текущий элемент файлом формата jpg
@@ -76,7 +106,7 @@ for day_dir in sorted(os.listdir(source_dir)):
             new_file_name = str(counter) + ".jpg"
             new_file_path = os.path.join(destination_dir, new_file_name)
             shutil.copy(file_path, new_file_path)
-            print(f"Копирую - {file_name} - {new_file_name}")
+            #print(f"Копирую - {file_name} - {new_file_name}")
             
             # Увеличиваем счетчик для следующего файла
             counter += 1

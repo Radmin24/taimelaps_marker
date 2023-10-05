@@ -9,16 +9,17 @@ path = "/Users/radmilginiatullin/Desktop/new_2"
 files = os.listdir(path)
 
 # Сортируем файлы по имени
+sorted_files = sorted(files, key=lambda x: int(os.path.splitext(x)[0]))
 
 # Указываем размеры видео и частоту кадров
-fps = 250
+fps = 24
 width = 1920    
 height = 1080
 
 
 # Создаем объект VideoWriter для записи видео
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-video = cv2.VideoWriter('/Users/radmilginiatullin/Desktop/timelaps.mp4', fourcc, fps, (width, height))
+video = cv2.VideoWriter('/Users/radmilginiatullin/Desktop/timelaps_new.mp4', fourcc, fps, (width, height))
 
 # Проходимся по списку файлов и добавляем их в видео
 for file in files:
@@ -27,9 +28,9 @@ for file in files:
     if os.path.exists(ds_store_path):
         os.remove(ds_store_path)
         print(f"Удален файл .DS_Store в {path}")
+        
     print(f"Фаил: {file}")
     img = cv2.imread(os.path.join(path, file))
-    # img_resized = cv2.resize(img, (width, height))
     video.write(img)
 
 # Освобождаем ресурсы и закрываем видео
